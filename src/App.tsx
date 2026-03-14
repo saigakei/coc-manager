@@ -295,6 +295,8 @@ onSnapshot(q, async (snap) => {
     ...d.data()
   })) as Character[]
 
+  await db.characters.clear()   // ←これ追加
+
   for (const c of list) {
     await db.characters.put(c)
   }
