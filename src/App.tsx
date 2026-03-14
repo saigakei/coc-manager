@@ -13,7 +13,7 @@ import { Routes, Route, useNavigate, useParams } from "react-router-dom";
 import { db } from "./db";
 import type { Character } from "./db";
 import { onAuthStateChanged } from "firebase/auth"
-import { getDocs, collection, doc, setDoc, deleteDoc } from "firebase/firestore"
+import { getDocs, collection, doc, setDoc, deleteDoc, onSnapshot } from "firebase/firestore"
 import { getDoc } from "firebase/firestore"
 import { useRef } from "react"
 
@@ -283,18 +283,25 @@ const registerRef = useRef<HTMLDivElement>(null)
 
     if (!u) return
 
-    query(
-    collection(dbCloud, "users", u.uid, "characters"),
-    orderBy("createdAt", "desc")
-  )
+    const q = query(
+  collection(dbCloud, "users", u.uid, "characters"),
+  orderBy("createdAt", "desc")
+)
 
+onSnapshot(q, async (snap) => {
 
-const snap = await getDocs(q)
+  const list = snap.docs.map(d => ({
+    id: d.id,
+    ...d.data()
+  })) as Character[]
 
-    const list = snap.docs.map(d => ({
-  id: d.id,
-  ...d.data()
-})) as Character[]
+  for (const c of list) {
+    await db.characters.put(c)
+  }
+
+  setCharacters(await db.characters.toArray())
+
+})
 
     for (const c of list) {
       await db.characters.put(c)
