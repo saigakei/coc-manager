@@ -1500,7 +1500,15 @@ return (
 </div>
 
     <button
-  onClick={logout}
+  onClick={async () => {
+
+    const ok = confirm("ログアウトしますか？");
+
+    if (!ok) return;
+
+    await logout();
+
+  }}
   style={{
     width: "100%",
     padding: "6px 8px",
