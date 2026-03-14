@@ -1,4 +1,5 @@
 import { auth, dbCloud } from "./firebase"
+import { query, orderBy } from "firebase/firestore"
 import {
   GoogleAuthProvider,
   signInWithPopup,
@@ -282,9 +283,13 @@ const registerRef = useRef<HTMLDivElement>(null)
 
     if (!u) return
 
-    const snap = await getDocs(
-      collection(dbCloud, "users", u.uid, "characters")
-    )
+    query(
+    collection(dbCloud, "users", u.uid, "characters"),
+    orderBy("createdAt", "desc")
+  )
+
+
+const snap = await getDocs(q)
 
     const list = snap.docs.map(d => ({
   id: d.id,
@@ -368,7 +373,7 @@ return ()=>{
 document.removeEventListener("mousedown",handleClick)
 }
 
-},[showLogin,showRegister])
+},[])
 
 const loginEmail = async () => {
   const id = prompt("ユーザーID")
@@ -648,7 +653,7 @@ if (text.includes("charasheet.vampire-blood.net")) {
   source: "text",
 
   createdAt: existingChar?.createdAt ?? Date.now(),
-  updatedAt: Date.now(),
+updatedAt: existingChar ? Date.now() : existingChar?.createdAt ?? Date.now(),
 };
 
 await db.characters.put(newChar)
@@ -781,7 +786,7 @@ const newChar: Character = {
   source: "json",
 
   createdAt: existingChar?.createdAt ?? Date.now(),
-  updatedAt: Date.now(),
+updatedAt: existingChar ? Date.now() : existingChar?.createdAt ?? Date.now(),
 };
     await db.characters.put(newChar)
     if (user) {
@@ -1011,7 +1016,7 @@ birthday: birthday,
 iacharaId: iacharaId,
   color: extractedColor,   // ←これ追加
 createdAt: existingChar?.createdAt ?? Date.now(),
-updatedAt: Date.now(),
+updatedAt: existingChar ? Date.now() : existingChar?.createdAt ?? Date.now(),
 };
 await db.characters.put(newChar)
   if (user) {
@@ -1758,30 +1763,37 @@ setSkillSort={setSkillSort}
     }}
   >
     <Routes>
-      <Route
-        path="/"
-        element={
-         <CharacterList
-  characters={sortedCharacters}
-  deleteCharacter={deleteCharacter}
-  totalCharacters={characters.length}
-  showDetails={showDetails}
-  setShowDetails={setShowDetails}
-  searchSkill={searchSkill}
-  showMatchedOnly={showMatchedOnly}
-  setShowMatchedOnly={setShowMatchedOnly}
-  statusSearch={statusSearch}
-  columns={columns}
-  setColumns={setColumns}
-  sortMode={sortMode}
-  setSortMode={setSortMode}
-/>
-        }
-      />
-      <Route
-        path="/character/:id"
-        element={<CharacterDetail />}
-      />
+  <Route
+    path="/"
+    element={
+      user ? (
+        <CharacterList
+          characters={sortedCharacters}
+          deleteCharacter={deleteCharacter}
+          totalCharacters={characters.length}
+          showDetails={showDetails}
+          setShowDetails={setShowDetails}
+          searchSkill={searchSkill}
+          showMatchedOnly={showMatchedOnly}
+          setShowMatchedOnly={setShowMatchedOnly}
+          statusSearch={statusSearch}
+          columns={columns}
+          setColumns={setColumns}
+          sortMode={sortMode}
+          setSortMode={setSortMode}
+        />
+      ) : (
+        <div style={{ padding: 40 }}>
+          ログインしてください
+        </div>
+      )
+    }
+  />
+
+  <Route
+    path="/character/:id"
+    element={<CharacterDetail />}
+  />
 </Routes>
 </div>
 )}
