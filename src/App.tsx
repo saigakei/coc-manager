@@ -312,27 +312,6 @@ useEffect(() => {
   db.characters.toArray().then(setCharacters)
 }, [])
 
-useEffect(() => {
-
-  if (!user) return
-
-  const sync = async () => {
-
-    const chars = await db.characters.toArray()
-
-    for (const c of chars) {
-      await setDoc(
-        doc(dbCloud, "users", user.uid, "characters", c.id),
-        c
-      )
-    }
-
-  }
-
-  sync()
-
-}, [characters, user])
-
 useEffect(()=>{
 
 const handleClick = (e:MouseEvent)=>{
@@ -658,7 +637,7 @@ updatedAt: existingChar ? Date.now() : existingChar?.createdAt ?? Date.now(),
 
 await db.characters.put(newChar)
 
-  if (user) {
+if (user) {
   await setDoc(
     doc(dbCloud, "users", user.uid, "characters", newChar.id),
     newChar
@@ -788,8 +767,10 @@ const newChar: Character = {
   createdAt: existingChar?.createdAt ?? Date.now(),
 updatedAt: existingChar ? Date.now() : existingChar?.createdAt ?? Date.now(),
 };
-    await db.characters.put(newChar)
-    if (user) {
+
+   await db.characters.put(newChar)
+
+if (user) {
   await setDoc(
     doc(dbCloud, "users", user.uid, "characters", newChar.id),
     newChar
@@ -1018,8 +999,10 @@ iacharaId: iacharaId,
 createdAt: existingChar?.createdAt ?? Date.now(),
 updatedAt: existingChar ? Date.now() : existingChar?.createdAt ?? Date.now(),
 };
+
 await db.characters.put(newChar)
-  if (user) {
+
+if (user) {
   await setDoc(
     doc(dbCloud, "users", user.uid, "characters", newChar.id),
     newChar
