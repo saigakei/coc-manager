@@ -1455,7 +1455,7 @@ return (
 
 <div
   style={{
-    position: "fixed",
+    position: "absolute",
     top: 20,
     right: 20,
     zIndex: 1000
@@ -2089,7 +2089,8 @@ const toggleSection = (key: string) => {
     width: isMobile ? "100%" : 350,
     padding: 20,
     borderRight: "1px solid #ddd",
-    overflowY: "scroll",
+    overflowY: "auto",
+scrollbarGutter: "stable",
     boxSizing: "border-box",
   }}
 >
