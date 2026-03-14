@@ -132,6 +132,9 @@ case "母国語":
     case "アイデア":
       return (status.INT ?? 0) * 5;
 
+case "知識":
+  return (status.EDU ?? 0) * 5;
+
     case "幸運":
       return (status.POW ?? 0) * 5;
 
@@ -294,8 +297,7 @@ onSnapshot(q, async (snap) => {
     id: d.id,
     ...d.data()
   })) as Character[]
-
-  await db.characters.clear()   // ←これ追加
+  
 
   for (const c of list) {
     await db.characters.put(c)
@@ -419,9 +421,7 @@ const [heightSearch, setHeightSearch] = useState("");
   const [heightMode, setHeightMode] = useState<"gte" | "lte">("gte");
 const [sanMode, setSanMode] = useState<"gte" | "lte">("gte");
 const [columns, setColumns] = useState<1 | 2 | 4 | "auto">("auto");
-const [sortMode, setSortMode] = useState<
-  "updated" | "created" | "name" | "birthplace"
->("updated");
+const [sortMode, setSortMode] = useState("created")
 const [textInput, setTextInput] = useState("");
 const [showDetails, setShowDetails] = useState(false);
 const [showMatchedOnly, setShowMatchedOnly] = useState(true);
@@ -1228,22 +1228,16 @@ if (!hasSkillSearch && !hasValueSearch) {
   .filter(Boolean);
 
   const skillMatch =
+keywords.length === 0 ||
 keywords.every((keyword) =>
   char.skills.some((skill) => {
 
-const normalized = normalizeSkillName(skill.name)
+    const normalized = normalizeSkillName(skill.name)
 
-if (!normalized.includes(keyword))
-     return false;
+    if (!normalized.includes(keyword))
+      return false;
 
-const base = getBaseSkillValue(char, skill.name);
-
-if (char.source === "json") {
-  return true;
-}
-
-return skill.value >= base;
-
+    return true;
   })
 );
 
@@ -3032,14 +3026,14 @@ setSortMode: React.Dispatch<
   .map(normalizeSkillName)
   .filter(Boolean);
   const matchedSkills =
-    keywords.length === 0
-      ? []
-      : keywords
-          .flatMap((keyword) =>
-  char.skills.filter((skill) =>
-    skill.name.includes(keyword)
-  )
-)
+  keywords.length === 0
+    ? []
+    : keywords
+        .flatMap((keyword) =>
+          char.skills.filter((skill) =>
+            normalizeSkillName(skill.name).includes(keyword)
+          )
+        )
           .filter(
             (skill): skill is { name: string; value: number } =>
               !!skill
