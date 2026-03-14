@@ -686,9 +686,14 @@ const statusObj: any = {};
       if (!match) return null;
 
       return {
-        name: match[2],
-        value: Number(match[1])
-      };
+  name: match[2],
+  value: Number(match[1]),
+  base: 0,
+  job: 0,
+  hobby: 0,
+  growth: 1,
+  other: 0
+};
     })
     .filter(Boolean) ?? [];
 
@@ -709,24 +714,44 @@ if (!existingChar && sheetUrl) {
 
   const mergedSkills = (() => {
 
-  const map = new Map<string, number>();
+  const map = new Map<string, any>();
 
   existingChar?.skills?.forEach(s => {
-    map.set(s.name, s.value);
+    map.set(s.name, { ...s });
   });
 
   skills.forEach(s => {
-    map.set(s.name, s.value);
+
+    const old = map.get(s.name);
+
+    if (old) {
+
+  // 既存技能 → 更新扱い → ⚡なし
+  map.set(s.name,{
+    ...old,
+    value:s.value,
+    growth:0
   });
 
-  return Array.from(map.entries()).map(([name, value]) => ({
-    name,
-    value
-  }));
+} else {
+
+  map.set(s.name,{
+    name:s.name,
+    value:s.value,
+    base:-1,
+    job:0,
+    hobby:0,
+    growth: existingChar ? 0 : 1,
+    other:0
+});
+
+}
+
+  });
+
+  return Array.from(map.values());
 
 })();
-
-
 
 const name = d.name ?? existingChar?.name ?? "不明";
 const furigana = "";
@@ -771,7 +796,7 @@ const newChar: Character = {
 
   color: d.color ?? "#dcdcdc",
 
-  source: "json",
+  source: existingChar ? "text" : "json",
 
   createdAt: existingChar?.createdAt ?? Date.now(),
 updatedAt: existingChar ? Date.now() : existingChar?.createdAt ?? Date.now(),
@@ -1203,7 +1228,6 @@ if (!hasSkillSearch && !hasValueSearch) {
   .filter(Boolean);
 
   const skillMatch =
-keywords.length === 0 ||
 keywords.every((keyword) =>
   char.skills.some((skill) => {
 
@@ -1212,8 +1236,14 @@ const normalized = normalizeSkillName(skill.name)
 if (!normalized.includes(keyword))
      return false;
 
-    const base = getBaseSkillValue(char, skill.name);
+const base = getBaseSkillValue(char, skill.name);
+
+if (char.source === "json") {
+  return true;
+}
+
 return skill.value >= base;
+
   })
 );
 
@@ -3079,17 +3109,16 @@ setSortMode: React.Dispatch<
   {char.furigana && ` (${char.furigana})`}
 </strong>
 
-  {char.source === "json" && !char.sheetUrl?.includes("iachara") && (
-    <span
-      style={{
-        fontSize: 14,
-        color: "#f5a623",
-      }}
-      title="JSONインポート"
-    >
-      ⚡
-    </span>
-  )}
+  {char.source === "json" && (
+  <span
+    style={{
+      fontSize: 14,
+      color: "#f5a623",
+    }}
+  >
+    ⚡
+  </span>
+)}
 </div>
 
 {char.sheetUrl && (
