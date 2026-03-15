@@ -116,7 +116,7 @@ if (baseName.includes("運転")) return 20;
 if (baseName.includes("操縦")) return 20;
 if (baseName.includes("芸術")) return 5;
 if (baseName.includes("製作")) return 5;
-if (baseName.includes("言語")) return 1;
+if (baseName.includes("語") && baseName !== "母国語") return 1;
 if (baseName.includes("こぶし")) return 50;
 
   switch (baseName) {
@@ -703,7 +703,7 @@ const iacharaIdMatch = sheetUrl.match(/view\/(\d+)/);
 const iacharaId = iacharaIdMatch ? iacharaIdMatch[1] : "";
 
 let existingChar = await db.characters
-  .filter(c => c.iacharaId === iacharaId)
+  .filter(c => iacharaId && c.iacharaId === iacharaId)
   .first();
 
 if (!existingChar && sheetUrl) {
@@ -955,7 +955,7 @@ const sanMax = sanMatch ? Number(sanMatch[2]) : 0;
   }
 
 let existingChar = await db.characters
-  .filter(c => c.iacharaId === iacharaId)
+  .filter(c => iacharaId && c.iacharaId === iacharaId)
   .first();
 
 if (!existingChar && sheetUrl) {
@@ -1453,27 +1453,7 @@ if (authLoading) return null;
 return (
 <>
 
-<div
-  style={{
-    position: "fixed",
-    top: 20,
-    right: 20,
-    zIndex: 1000
-  }}
->
 
-<button
-  onClick={() => setShowSettings(!showSettings)}
-  style={{
-    fontSize: 20,
-    padding: "6px 10px",
-    borderRadius: 8,
-    background: "#000",
-    color: "#fff",
-  }}
->
-⚙
-</button>
 
 {showSettings && (
   <div
@@ -1660,7 +1640,6 @@ color:"#000"
   </div>
 )}
 
-</div>
 
 <div
   style={{
@@ -1777,8 +1756,35 @@ setSkillSort={setSkillSort}
       padding: 20,
       overflowY: "auto",
       boxSizing: "border-box",
+position: "relative"
     }}
   >
+
+<div
+  style={{
+    position: "absolute",
+    top: 20,
+    right: 20,
+    zIndex: 1000
+  }}
+>
+
+<button
+  onClick={() => setShowSettings(!showSettings)}
+  style={{
+    fontSize: 20,
+    padding: "6px 10px",
+    borderRadius: 8,
+    background: "#000",
+    color: "#fff",
+  }}
+>
+⚙
+</button>
+</div>
+
+
+
     <Routes>
   <Route
     path="/"
