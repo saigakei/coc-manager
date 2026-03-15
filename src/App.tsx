@@ -2944,40 +2944,46 @@ setSortMode: React.Dispatch<
 
   {/* 上段 */}
   <div style={{ display: "flex", gap: 10, marginBottom: 6 }}>
-    <button
-      onClick={() => setShowDetails(!showDetails)}
-      style={{
-        height: 36,
-        fontSize: 15,
-        borderRadius: 8,
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        background: "#000",
-      }}
-    >
-      {showDetails
-        ? "プロフィール表示中"
-        : "プロフィール非表示中"}
-    </button>
 
     <button
-      onClick={() => setShowMatchedOnly(!showMatchedOnly)}
-      style={{
-        height: 36,
-        fontSize: 15,
-        borderRadius: 8,
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        padding: "0 14px",
-        background: "#000",
-      }}
-    >
-      {showMatchedOnly
-        ? "全技能非表示中"
-        : "全技能表示中"}
-    </button>
+  onClick={() => setShowDetails(!showDetails)}
+  style={{
+    height: 36,
+    fontSize: 15,
+    borderRadius: 8,
+    background: "#000",
+    color: "#fff",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    whiteSpace: "nowrap"
+  }}
+>
+  {showDetails
+    ? "プロフィール表示中"
+    : "プロフィール非表示中"}
+</button>
+
+    <button
+  onClick={() => setShowMatchedOnly(!showMatchedOnly)}
+  style={{
+    height: 36,
+    fontSize: 15,
+    borderRadius: 8,
+    padding: "0 14px",
+    background: "#000",
+    color: "#fff",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    whiteSpace: "nowrap"
+  }}
+>
+  {showMatchedOnly
+    ? "全技能非表示中"
+    : "全技能表示中"}
+</button>
+
   </div>
 
   {/* 下段（列表示） */}
@@ -3125,21 +3131,26 @@ setSortMode: React.Dispatch<
 
 {char.sheetUrl && (
   <button
-    onClick={(e) => {
-      e.stopPropagation();
-      window.open(char.sheetUrl, "_blank");
-    }}
-      style={{
-        fontSize: 12,
-        padding: "4px 8px",
-        borderRadius: 6,
+  onClick={(e) => {
+    e.stopPropagation();
+    window.open(char.sheetUrl, "_blank");
+  }}
+  style={{
+    fontSize: 12,
+    padding: "4px 8px",
+    borderRadius: 6,
     background: "#000",
-      }}
-  >
-    {char.sheetUrl.includes("charasheet")
-      ? "キャラ保管所へ"
-      : "いあきゃらへ"}
-  </button>
+    color: "#fff",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    whiteSpace: "nowrap"
+  }}
+>
+  {char.sheetUrl.includes("charasheet")
+    ? "キャラ保管所へ"
+    : "いあきゃらへ"}
+</button>
 )}
   
 </div>
@@ -3306,6 +3317,13 @@ setSortMode: React.Dispatch<
     marginLeft: 12,
     alignSelf: "center",
     background: "#000",
+    color: "#fff",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    padding: "6px 12px",
+    borderRadius: 8,
+    whiteSpace: "nowrap"
   }}
 >
   削除
