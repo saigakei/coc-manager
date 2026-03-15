@@ -792,7 +792,7 @@ const newChar: Character = {
 
   color: d.color ?? "#dcdcdc",
 
-  source: existingChar ? "text" : "json",
+  source: existingChar?.source ?? "json",
 
   createdAt: existingChar?.createdAt ?? Date.now(),
 updatedAt: existingChar ? Date.now() : existingChar?.createdAt ?? Date.now(),
