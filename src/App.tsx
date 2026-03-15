@@ -480,30 +480,7 @@ useEffect(() => {
   return () =>
     window.removeEventListener("resize", handleResize);
 }, []);
-  useEffect(() => {
-
-  if (!searchSkill && !occupationSearch && !genderSearch) {
-    db.characters.toArray().then(setCharacters);
-    return;
-  }
-
-  let collection = db.characters.toCollection();
-
-  if (occupationSearch) {
-    collection = collection.filter(c =>
-      c.occupation?.includes(occupationSearch)
-    );
-  }
-
-  if (genderSearch) {
-    collection = collection.filter(c =>
-      c.gender === genderSearch
-    );
-  }
-
-  collection.toArray().then(setCharacters);
-
-}, [occupationSearch, genderSearch]);
+  
 
   const deleteCharacter = async (id: string) => {
     await db.characters.delete(id);
