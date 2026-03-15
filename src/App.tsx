@@ -307,11 +307,7 @@ onSnapshot(q, async (snap) => {
 
 })
 
-    for (const c of list) {
-      await db.characters.put(c)
-    }
-
-    setCharacters(await db.characters.toArray())
+    
 
   })
 
@@ -504,16 +500,16 @@ useEffect(() => {
 }, [occupationSearch, genderSearch]);
 
   const deleteCharacter = async (id: string) => {
-    await db.characters.delete(id);
 
-if (user) {
-  await deleteDoc(
-    doc(dbCloud, "users", user.uid, "characters", id)
-  )
+  await db.characters.delete(id)
+
+  if (user) {
+    await deleteDoc(
+      doc(dbCloud, "users", user.uid, "characters", id)
+    )
+  }
+
 }
-
-    setCharacters(await db.characters.toArray());
-  };
 const importFromText = async () => {
   
 const text = textInput.trim();
@@ -1031,7 +1027,7 @@ const mergedSkills = (() => {
 
  else {
 
-      map.set(s.name, {
+      map.set(normalizeSkillName(s.name), {
         name: s.name,
         value: s.value,
         base: 0,
