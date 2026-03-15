@@ -1503,7 +1503,7 @@ return (
     ref={settingsRef}
     style={{
       position: "absolute",
-      top: 40,
+      top: 65,
       right: 0,
       background: "#fff",
       border: "1px solid #ddd",
@@ -3224,11 +3224,10 @@ setSortMode: React.Dispatch<
       opacity: 0.85,
     }}
   >
-    {char.gender}
-    {char.age > 0 && ` ${char.age}歳`}
-    {char.height > 0 && ` ${char.height}cm`}
-    {char.birthplace && ` ${char.birthplace}`}
-    {char.birthday && ` 🎂${char.birthday}`}
+    {char.gender && `${char.gender} `}
+{char.age ? `${char.age}歳 ` : ""}
+{char.height ? `${char.height}cm ` : ""}
+{char.birthday ? `🎂${char.birthday}` : ""}
   </div>
 )}
 
