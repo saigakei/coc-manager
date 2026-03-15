@@ -1239,7 +1239,7 @@ keywords.every((keyword) =>
 
     const base = getBaseSkillValue(char, skill.name);
 
-    return base >= 0 && skill.value > base;
+return base < 0 || skill.value > base;
   })
 );
 
