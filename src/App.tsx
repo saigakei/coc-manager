@@ -685,7 +685,7 @@ const statusObj: any = {};
   base: 0,
   job: 0,
   hobby: 0,
-  growth: Number(match[1]),   // ←ここ
+  growth: 0,   // ←ここ
   other: 0
 };
     })
@@ -732,7 +732,7 @@ if (!existingChar && sheetUrl) {
   map.set(normalizeSkillName(s.name),{
     ...old,
     value:s.value,
-    growth
+    growth: old.growth ?? growth
   });
 
 }
@@ -1018,10 +1018,10 @@ const mergedSkills = (() => {
   )
 
   map.set(normalizeSkillName(s.name),{
-    ...old,
-    value:s.value,
-    growth
-  });
+  ...old,
+  value:s.value,
+  growth: old.growth ?? growth
+});
 
 }
 
@@ -1062,7 +1062,7 @@ birthday: birthday,
   hp,
   mp,
   status,
-  skills,
+  skills: mergedSkills,
   imageUrl: imageUrl,
   sheetUrl: sheetUrl,
 iacharaId: iacharaId,
