@@ -293,8 +293,6 @@ const registerRef = useRef<HTMLDivElement>(null)
 
 onSnapshot(q, async (snap) => {
 
-await db.characters.clear();
-
   const list = snap.docs.map(d => ({
     id: d.id,
     ...d.data()
@@ -510,7 +508,7 @@ if (user) {
   )
 }
 
-    
+    setCharacters(await db.characters.toArray());
   };
 const importFromText = async () => {
   
