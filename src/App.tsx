@@ -293,6 +293,8 @@ const registerRef = useRef<HTMLDivElement>(null)
 
 onSnapshot(q, async (snap) => {
 
+await db.characters.clear();
+
   const list = snap.docs.map(d => ({
     id: d.id,
     ...d.data()
@@ -500,16 +502,16 @@ useEffect(() => {
 }, [occupationSearch, genderSearch]);
 
   const deleteCharacter = async (id: string) => {
+    await db.characters.delete(id);
 
-  await db.characters.delete(id)
-
-  if (user) {
-    await deleteDoc(
-      doc(dbCloud, "users", user.uid, "characters", id)
-    )
-  }
-
+if (user) {
+  await deleteDoc(
+    doc(dbCloud, "users", user.uid, "characters", id)
+  )
 }
+
+    
+  };
 const importFromText = async () => {
   
 const text = textInput.trim();
@@ -1027,7 +1029,7 @@ const mergedSkills = (() => {
 
  else {
 
-      map.set(normalizeSkillName(s.name), {
+      map.set(s.name, {
         name: s.name,
         value: s.value,
         base: 0,
