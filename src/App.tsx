@@ -293,8 +293,6 @@ const registerRef = useRef<HTMLDivElement>(null)
 
 onSnapshot(q, async (snap) => {
 
-await db.characters.clear();
-
   const list = snap.docs.map(d => ({
     id: d.id,
     ...d.data()
@@ -309,7 +307,11 @@ await db.characters.clear();
 
 })
 
-    
+    for (const c of list) {
+      await db.characters.put(c)
+    }
+
+    setCharacters(await db.characters.toArray())
 
   })
 
@@ -317,7 +319,9 @@ await db.characters.clear();
 
 }, [])
 
-
+useEffect(() => {
+  db.characters.toArray().then(setCharacters)
+}, [])
 
 useEffect(()=>{
 
@@ -510,7 +514,7 @@ if (user) {
   )
 }
 
-    
+    setCharacters(await db.characters.toArray());
   };
 const importFromText = async () => {
   
@@ -713,12 +717,12 @@ if (!existingChar && sheetUrl) {
   const map = new Map<string, any>();
 
   existingChar?.skills?.forEach(s => {
-    map.set(normalizeSkillName(s.name), { ...s });
+    map.set(s.name, { ...s });
   });
 
   skills.forEach(s => {
 
-    const old = map.get(normalizeSkillName(s.name));
+    const old = map.get(s.name);
 
     if (old) {
 
@@ -731,7 +735,7 @@ if (!existingChar && sheetUrl) {
     s.value - (base + job + hobby)
   )
 
-  map.set(normalizeSkillName(s.name),{
+  map.set(s.name,{
     ...old,
     value:s.value,
     growth
@@ -741,7 +745,7 @@ if (!existingChar && sheetUrl) {
 
  else {
 
-  map.set(normalizeSkillName(s.name),{
+  map.set(s.name,{
     name:s.name,
     value:s.value,
     base:-1,
@@ -1000,13 +1004,13 @@ const mergedSkills = (() => {
 
   // 既存技能
   existingChar?.skills?.forEach(s => {
-    map.set(normalizeSkillName(s.name), { ...s });
+    map.set(s.name, { ...s });
   });
 
   // JSON技能
   skills.forEach(s => {
 
-    const old = map.get(normalizeSkillName(s.name));
+    const old = map.get(s.name);
 
     if (old) {
 
@@ -1019,7 +1023,7 @@ const mergedSkills = (() => {
     s.value - (base + job + hobby)
   )
 
-  map.set(normalizeSkillName(s.name),{
+  map.set(s.name,{
     ...old,
     value:s.value,
     growth
@@ -1499,8 +1503,8 @@ return (
     ref={settingsRef}
     style={{
       position: "absolute",
-      top: 55,
-      right: 20,
+      top: 40,
+      right: 0,
       background: "#fff",
       border: "1px solid #ddd",
       borderRadius: 10,
@@ -1802,7 +1806,7 @@ position: "relative"
 <div
   style={{
     position: "absolute",
-    top: 10,
+    top: 20,
     right: 20,
     zIndex: 1000
   }}
@@ -1821,6 +1825,8 @@ position: "relative"
 ⚙
 </button>
 </div>
+
+
 
     <Routes>
   <Route
@@ -3218,10 +3224,11 @@ setSortMode: React.Dispatch<
       opacity: 0.85,
     }}
   >
-    {char.gender && `${char.gender} `}
-{char.age ? `${char.age}歳 ` : ""}
-{char.height ? `${char.height}cm ` : ""}
-{char.birthday ? `🎂${char.birthday}` : ""}
+    {char.gender}
+    {char.age > 0 && ` ${char.age}歳`}
+    {char.height > 0 && ` ${char.height}cm`}
+    {char.birthplace && ` ${char.birthplace}`}
+    {char.birthday && ` 🎂${char.birthday}`}
   </div>
 )}
 
