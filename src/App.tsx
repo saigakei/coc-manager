@@ -717,12 +717,12 @@ if (!existingChar && sheetUrl) {
   const map = new Map<string, any>();
 
   existingChar?.skills?.forEach(s => {
-    map.set(s.name, { ...s });
+    map.set(normalizeSkillName(s.name), { ...s });
   });
 
   skills.forEach(s => {
 
-    const old = map.get(s.name);
+    const old = map.get(normalizeSkillName(s.name));
 
     if (old) {
 
@@ -735,24 +735,24 @@ if (!existingChar && sheetUrl) {
     s.value - (base + job + hobby)
   )
 
-  map.set(s.name,{
-    ...old,
-    value:s.value,
-    growth
-  });
+  map.set(normalizeSkillName(s.name),{
+  ...old,
+  value:s.value,
+  growth
+});
 
 }
 
  else {
 
-  map.set(s.name,{
-    name:s.name,
-    value:s.value,
-    base:-1,
-    job:0,
-    hobby:0,
-    growth: existingChar ? 0 : 1,
-    other:0
+  map.set(normalizeSkillName(s.name),{
+  name:s.name,
+  value:s.value,
+  base:-1,
+  job:0,
+  hobby:0,
+  growth: existingChar ? 0 : 1,
+  other:0
 });
 
 }
@@ -1004,13 +1004,13 @@ const mergedSkills = (() => {
 
   // 既存技能
   existingChar?.skills?.forEach(s => {
-    map.set(s.name, { ...s });
+    map.set(normalizeSkillName(s.name), { ...s });
   });
 
   // JSON技能
   skills.forEach(s => {
 
-    const old = map.get(s.name);
+    const old = map.get(normalizeSkillName(s.name));
 
     if (old) {
 
@@ -1023,11 +1023,11 @@ const mergedSkills = (() => {
     s.value - (base + job + hobby)
   )
 
-  map.set(s.name,{
-    ...old,
-    value:s.value,
-    growth
-  });
+  map.set(normalizeSkillName(s.name),{
+  ...old,
+  value:s.value,
+  growth
+});
 
 }
 
