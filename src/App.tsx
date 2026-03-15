@@ -1448,14 +1448,11 @@ if (birthplaceSearch === "__sort__") {
 if (authLoading) return null;
 
 return (
-
 <>
-
-<div>
 
 <div
   style={{
-    position: "absolute",
+    position: "fixed",
     top: 20,
     right: 20,
     zIndex: 1000
@@ -1492,6 +1489,7 @@ return (
       zIndex: 999,
     }}
 >
+
 
 {!user && (
   <>
@@ -1813,7 +1811,6 @@ setSkillSort={setSkillSort}
 </Routes>
 </div>
 )}
-</div>
 </div>
 
 {showLogin && (
@@ -2423,6 +2420,7 @@ width:80,
 height:35,
 borderRadius:10,
 background:"#000",
+color:"#fff",
 display:"flex",
 flexDirection:"column",
 alignItems:"center",
@@ -2447,6 +2445,7 @@ whiteSpace:"nowrap"
     height:35,
     borderRadius:10,
     background:"#000",
+    color:"#fff",
     display:"flex",
     alignItems:"center",
     justifyContent:"center",
@@ -2580,9 +2579,7 @@ display:"flex",
 alignItems:"center",
 justifyContent:"center",
 boxSizing:"border-box",
-whiteSpace:"nowrap",
-transform:"none",
-transition:"none"
+whiteSpace:"nowrap"
 }}
 >
 {ageMode==="gte"?"以上":"以下"}
@@ -2635,6 +2632,7 @@ width:80,
 height:35,
 borderRadius:10,
 background:"#000",
+color:"#fff",
 display:"flex",
 alignItems:"center",
 justifyContent:"center",
@@ -2645,6 +2643,7 @@ marginTop:-15
 >
 リセット
 </button>
+
     </div>
   </div>
 
@@ -2758,11 +2757,12 @@ onClick={() =>
 setHeightMode(heightMode==="gte"?"lte":"gte")
 }
 style={{
-    width: 70,
-    height: 35,
-    fontSize: 14,
-    borderRadius: 10,
-    background: "#000",
+width: 70,
+height: 35,
+fontSize: 14,
+borderRadius: 10,
+background: "#000",
+color:"#fff",
 display: "flex",
 alignItems: "center",
 justifyContent: "center",
@@ -2784,11 +2784,12 @@ whiteSpace: "nowrap"
     fontSize: 14,
     borderRadius: 10,
     background: "#000",
-display: "flex",
-alignItems: "center",
-justifyContent: "center",
-marginLeft: 10,
-whiteSpace: "nowrap"
+    color:"#fff",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    marginLeft: 10,
+    whiteSpace: "nowrap"
   }}
 >
   リセット
@@ -2844,16 +2845,19 @@ onChange={(e) => setTextInput(e.target.value)}
   }}
 />
 
-
-
-<button onClick={importFromText}
-  style={{
-    marginTop: 10,
-    width: "100%",
-    padding: 8,
-    borderRadius: 8,
-    background: "#000",
-  }}
+<button
+onClick={importFromText}
+style={{
+marginTop: 10,
+width: "100%",
+padding: 8,
+borderRadius: 8,
+background: "#000",
+color: "#fff",
+display: "flex",
+alignItems: "center",
+justifyContent: "center"
+}}
 >
 テキストから追加
 </button>
