@@ -297,7 +297,8 @@ onSnapshot(q, async (snap) => {
     id: d.id,
     ...d.data()
   })) as Character[]
-  
+
+  await db.characters.clear()
 
   for (const c of list) {
     await db.characters.put(c)
@@ -691,7 +692,7 @@ const statusObj: any = {};
   base: 0,
   job: 0,
   hobby: 0,
-  growth: 1,
+  growth: Number(match[1]),   // ←ここ
   other: 0
 };
     })
@@ -726,14 +727,24 @@ if (!existingChar && sheetUrl) {
 
     if (old) {
 
-  // 既存技能 → 更新扱い → ⚡なし
+  const base = old.base ?? 0
+  const job = old.job ?? 0
+  const hobby = old.hobby ?? 0
+
+  const growth = Math.max(
+    0,
+    s.value - (base + job + hobby)
+  )
+
   map.set(s.name,{
     ...old,
     value:s.value,
-    growth:0
+    growth
   });
 
-} else {
+}
+
+ else {
 
   map.set(s.name,{
     name:s.name,
@@ -939,20 +950,35 @@ const sanMax = sanMatch ? Number(sanMatch[2]) : 0;
   let match;
 
   while ((match = skillRegex.exec(text)) !== null) {
-    const skillName = match[1].trim();
-    const value = Number(match[2]);
-    if (!isNaN(value)) {
-      skills.push({
-  name: normalizeSkillAlias(match[1].trim()),
-  value: Number(match[2]),
-  base: Number(match[3]),
-  job: Number(match[4]),
-  hobby: Number(match[5]),
-  growth: Number(match[6]),
-  other: Number(match[7])
-});
-    }
+
+  const name = normalizeSkillAlias(match[1].trim())
+
+  const total = Number(match[2])
+  const base = Number(match[3])
+  const job = Number(match[4])
+  const hobby = Number(match[5])
+  const other = Number(match[7])
+
+  if (!isNaN(total)) {
+
+    const growth = Math.max(
+      0,
+      total - (base + job + hobby)
+    )
+
+    skills.push({
+      name,
+      value: total,
+      base,
+      job,
+      hobby,
+      growth,
+      other
+    })
+
   }
+
+}
 
 let existingChar = await db.characters
   .filter(c => iacharaId && c.iacharaId === iacharaId)
@@ -980,15 +1006,24 @@ const mergedSkills = (() => {
 
     if (old) {
 
-      const diff = s.value - old.value;
+  const base = old.base ?? 0
+  const job = old.job ?? 0
+  const hobby = old.hobby ?? 0
 
-      map.set(s.name, {
-        ...old,
-        value: s.value,
-        growth: (old.growth ?? 0) + (diff > 0 ? diff : 0)
-      });
+  const growth = Math.max(
+    0,
+    s.value - (base + job + hobby)
+  )
 
-    } else {
+  map.set(s.name,{
+    ...old,
+    value:s.value,
+    growth
+  });
+
+}
+
+ else {
 
       map.set(s.name, {
         name: s.name,
