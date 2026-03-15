@@ -297,7 +297,8 @@ onSnapshot(q, async (snap) => {
     id: d.id,
     ...d.data()
   })) as Character[]
-  
+
+  await db.characters.clear()
 
   for (const c of list) {
     await db.characters.put(c)
@@ -763,8 +764,17 @@ if (!existingChar && sheetUrl) {
 
 })();
 
-const name = d.name ?? existingChar?.name ?? "不明";
-const furigana = "";
+const rawName = d.name ?? existingChar?.name ?? "不明";
+
+let name = rawName;
+let furigana = existingChar?.furigana ?? "";
+
+const kanaMatch = rawName.match(/[（(](.+?)[）)]/);
+
+if (kanaMatch) {
+  furigana = kanaMatch[1].trim();
+  name = rawName.replace(/[（(].+?[）)]/, "").trim();
+}
 
 const isUpdate = !!existingChar;
 
@@ -776,7 +786,7 @@ const newChar: Character = {
   furigana,
 
   occupation: existingChar?.occupation ?? "",
-  gender: existingChar?.gender ?? "",
+  gender: existingChar?.gender ?? "未設定",
   age: existingChar?.age ?? 0,
   height: existingChar?.height ?? 0,
   birthplace: existingChar?.birthplace ?? "",
@@ -1149,8 +1159,8 @@ if (genderSearch) {
     }
   } 
   else if (genderSearch === "未設定") {
-    if (char.gender !== "") return false;
-  }
+  if (char.gender && char.gender !== "未設定") return false;
+}
 }
 
 // 職業（部分一致）
