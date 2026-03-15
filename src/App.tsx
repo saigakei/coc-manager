@@ -1501,8 +1501,8 @@ return (
     ref={settingsRef}
     style={{
       position: "absolute",
-      top: 40,
-      right: 0,
+      top: 55,
+      right: 20,
       background: "#fff",
       border: "1px solid #ddd",
       borderRadius: 10,
@@ -1804,7 +1804,7 @@ position: "relative"
 <div
   style={{
     position: "absolute",
-    top: 20,
+    top: 10,
     right: 20,
     zIndex: 1000
   }}
@@ -1823,8 +1823,6 @@ position: "relative"
 ⚙
 </button>
 </div>
-
-
 
     <Routes>
   <Route
