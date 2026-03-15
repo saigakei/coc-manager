@@ -293,6 +293,8 @@ const registerRef = useRef<HTMLDivElement>(null)
 
 onSnapshot(q, async (snap) => {
 
+await db.characters.clear();
+
   const list = snap.docs.map(d => ({
     id: d.id,
     ...d.data()
@@ -508,7 +510,7 @@ if (user) {
   )
 }
 
-    setCharacters(await db.characters.toArray());
+    
   };
 const importFromText = async () => {
   
@@ -685,7 +687,7 @@ const statusObj: any = {};
   base: 0,
   job: 0,
   hobby: 0,
-  growth: 0,   // ←ここ
+  growth: Number(match[1]),   // ←ここ
   other: 0
 };
     })
@@ -732,7 +734,7 @@ if (!existingChar && sheetUrl) {
   map.set(normalizeSkillName(s.name),{
     ...old,
     value:s.value,
-    growth: old.growth ?? growth
+    growth
   });
 
 }
@@ -1018,10 +1020,10 @@ const mergedSkills = (() => {
   )
 
   map.set(normalizeSkillName(s.name),{
-  ...old,
-  value:s.value,
-  growth: old.growth ?? growth
-});
+    ...old,
+    value:s.value,
+    growth
+  });
 
 }
 
@@ -1062,7 +1064,7 @@ birthday: birthday,
   hp,
   mp,
   status,
-  skills: mergedSkills,
+  skills,
   imageUrl: imageUrl,
   sheetUrl: sheetUrl,
 iacharaId: iacharaId,
