@@ -1237,12 +1237,15 @@ keywords.every((keyword) =>
     if (!normalized.includes(keyword))
       return false;
 
-    return true;
+    const base = getBaseSkillValue(char, skill.name);
+
+    return base >= 0 && skill.value > base;
   })
 );
 
  const valueMatch =
   !searchValue ||
+
   (
     keywords.length === 0
       ? char.skills.some((skill) => {
