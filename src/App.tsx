@@ -1058,6 +1058,7 @@ birthday: birthday,
   sheetUrl: sheetUrl,
 iacharaId: iacharaId,
   color: extractedColor,   // ←これ追加
+source: "text",
 createdAt: existingChar?.createdAt ?? Date.now(),
 updatedAt: existingChar ? Date.now() : existingChar?.createdAt ?? Date.now(),
 };
