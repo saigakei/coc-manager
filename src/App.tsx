@@ -3214,7 +3214,7 @@ setSortMode: React.Dispatch<
 {char.age ? `${char.age}歳 ` : ""}
 {char.height ? `${char.height}cm ` : ""}
 
-{char.birthplace && `出身:${char.birthplace} `}
+{char.birthplace && `${char.birthplace} `}
 {char.birthday && `🎂${char.birthday}`}
   </div>
 )}
