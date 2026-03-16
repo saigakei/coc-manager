@@ -293,26 +293,34 @@ const registerRef = useRef<HTMLDivElement>(null)
 
 onSnapshot(q, async (snap) => {
 
-  const list = snap.docs.map(d => ({
+  const cloudChars = snap.docs.map(d => ({
     id: d.id,
     ...d.data()
   })) as Character[]
-  
 
-  for (const c of list) {
+  // FirestoreにあるID
+  const cloudIds = cloudChars.map(c => c.id)
+
+  // Local取得
+  const localChars = await db.characters.toArray()
+
+  // LocalにあってCloudに無いキャラを削除
+  for (const c of localChars) {
+    if (!cloudIds.includes(c.id)) {
+      await db.characters.delete(c.id)
+    }
+  }
+
+  // CloudをLocalに保存
+  for (const c of cloudChars) {
     await db.characters.put(c)
   }
 
   setCharacters(await db.characters.toArray())
 
 })
-
-    for (const c of list) {
-      await db.characters.put(c)
-    }
-
-    setCharacters(await db.characters.toArray())
-
+    
+    
   })
 
   return () => unsub()
