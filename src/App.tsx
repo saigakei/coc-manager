@@ -1090,10 +1090,16 @@ const filteredCharacters = useMemo(() => {
   if (!char.skills) return false;
 
 // 出身地検索
+
 if (
-  birthplaceSearch &&
-  birthplaceSearch !== "__sort__"
-) {
+  (birthplaceSearch &&
+    birthplaceSearch !== "__sort__" &&
+    birthplaceSearch !== "__other__" &&
+    birthplaceSearch !== "__none__")
+  || birthplaceText
+)
+
+ {
 
   const place = normalizeText(char.birthplace ?? "");
 
