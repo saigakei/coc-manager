@@ -296,7 +296,7 @@ const [registerPass,setRegisterPass] = useState("")
 const settingsRef = useRef<HTMLDivElement>(null)
 const loginRef = useRef<HTMLDivElement>(null)
 const registerRef = useRef<HTMLDivElement>(null)
-
+const [nameSearch, setNameSearch] = useState("");
 const inputStyle = {
   background: "#fff",
   color: "#000",
@@ -1114,6 +1114,18 @@ return;
 const filteredCharacters = useMemo(() => {
   
   return characters.filter((char) => {
+// 名前検索
+if (nameSearch) {
+
+  const name = (char.name ?? "").toLowerCase();
+  const kana = (char.furigana ?? "").toLowerCase();
+  const search = nameSearch.toLowerCase();
+
+  if (!name.includes(search) && !kana.includes(search)) {
+    return false;
+  }
+
+}
   if (!char.skills) return false;
 
 // 出身地検索
@@ -1355,7 +1367,8 @@ ageSearchMax,
   statusSearch,
   damageBonusSearch,
   statusMode,
-sanMode
+sanMode,
+nameSearch,
 ]);
 
 // ステータス検索時はステータス値順
@@ -1885,6 +1898,8 @@ position: "relative"
           setColumns={setColumns}
           sortMode={sortMode}
           setSortMode={setSortMode}
+  nameSearch={nameSearch}
+  setNameSearch={setNameSearch}
         />
       ) : (
         <div style={{ padding: 40 }}>
@@ -2976,6 +2991,8 @@ totalCharacters,
   setColumns,
 sortMode,
   setSortMode,
+nameSearch,
+setNameSearch,
 }: {
 
   characters: Character[];
@@ -2998,17 +3015,36 @@ setSortMode: React.Dispatch<
     React.SetStateAction<1 | 2 | 4 | "auto">
   >;
 
-
+nameSearch: string;
+setNameSearch: React.Dispatch<React.SetStateAction<string>>;
 }) {
   const navigate = useNavigate();
 
   return (
     <div>
-      <h2 style={{ marginBottom: 10 }}>
+      <h2 style={{ marginBottom: 6 }}>
   登録キャラ一覧（{characters.length} / {totalCharacters}）
 </h2>
 
-     <div style={{ marginBottom: 10 }}>
+     <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+
+  {/* 上段 */}
+  <div style={{ display: "flex", gap: 10 }}>
+
+<input
+  type="text"
+  placeholder="名前検索"
+  value={nameSearch}
+  onChange={(e) => setNameSearch(e.target.value)}
+  style={{
+    padding: "0px 10px",
+    borderRadius: 8,
+    border: "1px solid #ccc",
+    fontSize: 14,
+    width: 140,
+    height: 34
+  }}
+/>
 
 <select
   value={sortMode}
@@ -3029,8 +3065,8 @@ setSortMode: React.Dispatch<
   <option value="name">名前順</option>
 
 </select>
-
-  {/* 上段 */}
+</div>
+  {/* 下段 */}
   <div style={{ display: "flex", gap: 10, marginBottom: 6 }}>
 
     <button
@@ -3074,8 +3110,9 @@ setSortMode: React.Dispatch<
 
   </div>
 
+
   {/* 下段（列表示） */}
-  <div style={{ display: "flex", gap: 6 }}>
+  <div style={{ marginBottom: 12 }}>
     <span style={{ fontSize: 14, alignSelf: "center" }}>
       表示列：
     </span>
