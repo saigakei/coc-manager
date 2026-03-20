@@ -249,7 +249,27 @@ case "知識":
 ========================= */
 
 function App() {
+
+  const [darkMode, setDarkMode] = useState(() => {
+  const saved = localStorage.getItem("darkMode");
+  return saved ? JSON.parse(saved) : false;
+});
   const [characters, setCharacters] = useState<Character[]>([]);
+
+  const theme = {
+    bg: darkMode ? "#242424" : "#ffffff",
+    text: darkMode ? "#ffffff" : "#000000",
+  };
+  useEffect(() => {
+
+    const unsub = onAuthStateChanged(auth, async (u) => {
+      setUser(u)
+      setAuthLoading(false)
+    })
+
+    return () => unsub()
+
+  }, [])
 const [skillSort, setSkillSort] = useState("desc");
 const [skillTotalSort, setSkillTotalSort] = useState(false);
   const [searchSkill, setSearchSkill] = useState("");
@@ -276,6 +296,13 @@ const [registerPass,setRegisterPass] = useState("")
 const settingsRef = useRef<HTMLDivElement>(null)
 const loginRef = useRef<HTMLDivElement>(null)
 const registerRef = useRef<HTMLDivElement>(null)
+
+const inputStyle = {
+  background: "#fff",
+  color: "#000",
+  border: "1px solid #ccc",
+  filter: darkMode ? "invert(1) hue-rotate(180deg)" : "none",
+};
 
   useEffect(() => {
 
@@ -1681,6 +1708,8 @@ color:"#000"
     display: "flex",
     flexDirection: isMobile ? "column" : "row",
     height: "100vh",
+background: theme.bg,
+color: theme.text,
   }}
 >
   
@@ -1805,6 +1834,25 @@ position: "relative"
 >
 
 <button
+  onClick={() => {
+  const next = !darkMode;
+  setDarkMode(next);
+  localStorage.setItem("darkMode", JSON.stringify(next));
+}}
+  style={{
+    fontSize: 16,
+    padding: "6px 10px",
+    borderRadius: 8,
+    background: darkMode ? "#fff" : "#000",
+    color: darkMode ? "#000" : "#fff",
+    marginLeft: 8,
+    cursor: "pointer"
+  }}
+>
+  {darkMode ? "ライト" : "ダーク"}
+</button>
+
+<button
   onClick={() => setShowSettings(!showSettings)}
   style={{
     fontSize: 20,
@@ -1817,8 +1865,6 @@ position: "relative"
 ⚙
 </button>
 </div>
-
-
 
     <Routes>
   <Route
@@ -2241,6 +2287,7 @@ borderRadius:"8px 8px 0 0",
 border:"1px solid #ccc",
 borderBottom:"none",
 boxSizing:"border-box"
+
 }}
 />
 
