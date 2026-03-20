@@ -3192,6 +3192,9 @@ setSortMode: React.Dispatch<
     ? "キャラ保管所へ"
     : "いあきゃらへ"}
 </button>
+
+
+
 )}
   
 </div>
