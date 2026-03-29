@@ -1468,6 +1468,29 @@ if (sortMode === "birthplace") {
 
 }
 
+// 誕生日順
+if (sortMode === "birthday") {
+
+  const getBirthdayValue = (b?: string) => {
+
+    if (!b) return 9999;
+
+    const parts = b.split("/");
+
+    if (parts.length !== 2) return 9999;
+
+    const month = Number(parts[0]);
+    const day = Number(parts[1]);
+
+    return month * 100 + day;
+
+  };
+
+  return getBirthdayValue(a.birthday)
+    - getBirthdayValue(b.birthday);
+
+}
+
 // 都道府県順（セレクトから）
 if (birthplaceSearch === "__sort__") {
 
@@ -3063,6 +3086,7 @@ setNameSearch: React.Dispatch<React.SetStateAction<string>>;
   <option value="updated">更新順</option>
   <option value="created">作成順</option>
   <option value="name">名前順</option>
+<option value="birthday">誕生日順</option>
 
 </select>
 </div>
