@@ -771,7 +771,9 @@ if (!existingChar && sheetUrl) {
 
   });
 
-  return Array.from(map.values());
+  return skills.map(s =>
+  map.get(normalizeSkillName(s.name))
+);
 
 })();
 
@@ -1059,11 +1061,76 @@ const mergedSkills = (() => {
 
   });
 
-  return Array.from(map.values());
+  return skills.map(s =>
+  map.get(normalizeSkillName(s.name))
+);
 
 })();
 
+
+
 const isUpdate = !!existingChar;
+
+
+// ⭐ 所持品取得（名前＋個数 → 名前×個数）
+
+const itemsMatch =
+  text.match(/【所持品】([\s\S]*?)(\n【|$)/);
+
+let items: string[] = [];
+
+if (itemsMatch) {
+
+  items = itemsMatch[1]
+    .split("\n")
+    .map(s => s.trim())
+    .filter(line => {
+
+      // 空行削除
+      if (!line) return false;
+
+      // 見出し削除
+      if (line.includes("名称")) return false;
+
+      // 所持金・借金削除
+      if (line.startsWith("現在の所持金")) return false;
+      if (line.startsWith("借金")) return false;
+
+      return true;
+
+    })
+    .map(line => {
+console.log("RAW LINE:", line);
+
+  // ⭐ 行の最後の数字を取得
+  // 全角スペース→半角
+line = line.replace(/\u3000/g, " ");
+
+// 「名前   数字」の形を取得
+const match = line.match(/^(.+?)\s+(\d+)\s*$/);
+
+if (match) {
+
+  const name = match[1].trim();
+  const count = match[2];
+
+  if (count === "1") {
+    return name;
+  }
+
+  return `${name}×${count}`;
+
+}
+
+// 個数なし
+return line.trim();
+
+  return line;
+
+});
+
+}
+console.log("ITEMS:", items);
   
   const newChar: Character = {
   id: existingChar?.id ?? crypto.randomUUID(),
@@ -1081,6 +1148,7 @@ birthday: birthday,
   mp,
   status,
   skills,
+items,
   imageUrl: imageUrl,
   sheetUrl: sheetUrl,
 iacharaId: iacharaId,
@@ -1911,6 +1979,7 @@ position: "relative"
           characters={sortedCharacters}
           deleteCharacter={deleteCharacter}
           totalCharacters={characters.length}
+showMessage={showMessage}
           showDetails={showDetails}
           setShowDetails={setShowDetails}
           searchSkill={searchSkill}
@@ -3003,6 +3072,7 @@ justifyContent: "center"
 const CharacterList = React.memo(function CharacterList({
   characters,
 totalCharacters,
+showMessage,
   deleteCharacter,
   showDetails,
   setShowDetails,
@@ -3022,6 +3092,7 @@ setNameSearch,
   deleteCharacter: (id: string) => void;
 totalCharacters: number;
   showDetails: boolean;
+showMessage: (msg: string) => void;
   setShowDetails: React.Dispatch<React.SetStateAction<boolean>>;
   searchSkill: string;
   showMatchedOnly: boolean;
@@ -3280,15 +3351,370 @@ setNameSearch: React.Dispatch<React.SetStateAction<string>>;
 
 {char.sheetUrl && (
   <button
+    onClick={(e) => {
+      e.stopPropagation();
+      window.open(char.sheetUrl, "_blank");
+    }}
+    style={{
+      fontSize: 12,
+      padding: "4px 8px",
+      borderRadius: 6,
+      background: "#000",
+      color: "#fff",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      whiteSpace: "nowrap"
+    }}
+  >
+    {char.sheetUrl.includes("charasheet")
+      ? "キャラ保管所へ"
+      : "いあきゃらへ"}
+  </button>
+)}
+
+{/* ←ここに追加！！ */}
+
+<button
   onClick={(e) => {
     e.stopPropagation();
-    window.open(char.sheetUrl, "_blank");
+const commands = (() => {
+
+  const lines: string[] = [];
+
+  const status = char.status ?? {};
+
+  const db = getDamageBonus(
+    status.STR ?? 0,
+    status.SIZ ?? 0
+  );
+
+  // 正気度
+  lines.push("1d100<={SAN} 【正気度ロール】");
+
+  // 基本ロール
+  if (status.EDU)
+    lines.push(`CCB<=${status.EDU * 5} 【知識】`);
+
+  if (status.INT)
+    lines.push(`CCB<=${status.INT * 5} 【アイデア】`);
+
+  if (status.POW)
+    lines.push(`CCB<=${status.POW * 5} 【幸運】`);
+
+  // ダメージ対応
+  const meleeDamageMap: Record<string,string|null> = {
+    "キック": "1d6",
+    "こぶし（パンチ）": "1d3",
+    "頭突き": "1d4",
+    "組み付き": null
+  };
+
+  const skills = (char.skills ?? [])
+  .filter(skill => {
+
+    if (!skill.name || !skill.value)
+      return false;
+
+    // ⭐ 知識・アイデア・幸運を除外
+    if (
+      skill.name === "知識" ||
+      skill.name === "アイデア" ||
+      skill.name === "幸運"
+    ) {
+      return false;
+    }
+
+    const base =
+      skill.base ??
+      getBaseSkillValue(char, skill.name);
+
+    const normalized =
+  normalizeSkillName(skill.name);
+
+const isLibrary =
+  normalized === "図書館";
+
+return isLibrary || base < 0 || skill.value > base;
+
+  });
+
+  const maSkill =
+    skills.find(s =>
+      s.name.includes("マーシャルアーツ")
+    );
+
+  // 近接技能
+  skills.forEach(skill => {
+
+    if (!(skill.name in meleeDamageMap))
+      return;
+
+    lines.push(
+      `CCB<=${skill.value} 【${skill.name}】`
+    );
+
+    const dmg =
+      meleeDamageMap[skill.name];
+
+    if (dmg) {
+
+      if (db !== "0")
+  lines.push(
+  `${dmg}+${db} 【${skill.name}+DB】`
+);
+else
+  lines.push(
+    `${dmg} 【${skill.name}ダメージ】`
+  );
+
+    }
+
+    if (maSkill) {
+
+  lines.push(
+    `CBRB(${skill.value},${maSkill.value}) 【${skill.name}+MA】`
+  );
+
+  // ⭐ ここ追加（MAダメージ）
+  if (dmg) {
+
+  if (db !== "0") {
+
+    lines.push(
+      `${dmg}+${db}+${dmg} 【${skill.name}+MA+DB】`
+    );
+
+  } else {
+
+    lines.push(
+      `${dmg}+${dmg} 【${skill.name}+MA】`
+    );
+
+  }
+
+}
+
+}
+  });
+
+  // その他技能
+  skills.forEach(skill => {
+
+    if (skill.name in meleeDamageMap)
+      return;
+
+    lines.push(
+      `CCB<=${skill.value} 【${skill.name}】`
+    );
+
+  });
+
+  // 能力値×5
+  [
+  "STR","CON","POW","DEX",
+  "APP","SIZ","INT","EDU"
+].forEach(stat => {
+
+  lines.push(
+    `CCB<=({${stat}}*5) ${stat}倍数`
+  );
+
+});
+
+  // 対抗ロール
+  [
+    "STR","CON","POW","DEX",
+    "APP","SIZ","INT","EDU"
+  ].forEach(stat => {
+
+    if (status[stat])
+      lines.push(
+  `RESB({${stat}}-対抗値) ${stat}対抗`
+);
+
+  });
+
+  return lines.join("\n");
+
+})();
+
+
+const statusLines = [
+
+  `STR:${char.status?.STR ?? 0}`,
+  `CON:${char.status?.CON ?? 0}`,
+  `POW:${char.status?.POW ?? 0}`,
+
+  `DEX:${char.status?.DEX ?? 0}`,
+  `APP:${char.status?.APP ?? 0}`,
+  `SIZ:${char.status?.SIZ ?? 0}`,
+
+  `INT:${char.status?.INT ?? 0}`,
+  `EDU:${char.status?.EDU ?? 0}`,
+  `SAN:${char.sanCurrent ?? 0}`,
+
+  `HP:${char.hp ?? 0}`,
+  `MP:${char.mp ?? 0}`,
+  `DB:${getDamageBonus(
+    char.status?.STR ?? 0,
+    char.status?.SIZ ?? 0
+  )}`,
+
+];
+
+const skillLines = [
+
+  // ⭐ 追加：知識・アイデア・幸運
+  `知識(${(char.status?.EDU ?? 0) * 5}%)`,
+  `アイデア(${(char.status?.INT ?? 0) * 5}%)`,
+  `幸運(${(char.status?.POW ?? 0) * 5}%)`,
+
+  // ⭐ 既存技能
+  ...(char.skills ?? [])
+    .filter(s => {
+
+  const base =
+    getBaseSkillValue(char, s.name);
+
+  const normalized =
+    normalizeSkillName(s.name);
+
+  const isLibrary =
+    normalized === "図書館";
+
+  // 図書館は常に表示
+  return isLibrary || base < 0 || s.value > base;
+
+})
+    .map(s => `${s.name}(${s.value}%)`)
+
+];
+
+const formatStatusColumns = (arr: string[]) => {
+
+  const lines: string[] = [];
+
+  for (let i = 0; i < arr.length; i += 3) {
+
+    const row = arr
+      .slice(i, i + 3)
+      .map(s => s.padEnd(7, " "));
+
+    lines.push(row.join(" "));
+
+  }
+
+  return lines;
+
+};
+
+
+
+const formatSkillColumns = (arr: string[]) => {
+
+  const lines: string[] = [];
+
+  for (let i = 0; i < arr.length; i += 3) {
+
+    const row = arr
+      .slice(i, i + 3)
+      lines.push(row.join("　"));
+    
+  }
+
+  return lines;
+
+};
+
+const formatItemColumns = (arr: string[]) => {
+
+  const lines: string[] = [];
+
+  for (let i = 0; i < arr.length; i += 5) {
+
+    const row = arr
+      .slice(i, i + 5);
+
+    lines.push(row.join("　"));
+
+  }
+
+  return lines;
+
+};
+
+    const json = {
+      kind: "character",
+      data: {
+        name: char.furigana
+  ? `${char.name}(${char.furigana})`
+  : char.name,
+        initiative: char.status?.DEX ?? 0,
+        externalUrl: char.sheetUrl ?? "",
+
+        commands: commands,
+
+        memo: [
+
+`${char.name} (${char.furigana ?? ""})｜${char.age ?? ""}歳｜${char.gender ?? ""}｜${char.occupation ?? ""}`,
+
+`-------------------------------------`,
+
+...formatStatusColumns(statusLines),
+
+`-------------------------------------`,
+
+`【技能】`,
+...formatSkillColumns(skillLines),
+
+
+`-------------------------------------`,
+
+`【所持品】`,
+(char.items ?? []).join("、")
+
+].join("\n"),
+
+        status: [
+          {
+            label: "HP",
+            value: char.hp ?? 0,
+            max: char.hp ?? 0
+          },
+          {
+            label: "MP",
+            value: char.mp ?? 0,
+            max: char.mp ?? 0
+          },
+          {
+  label: "SAN",
+  value: char.sanCurrent ?? 0,
+  max: char.sanCurrent ?? 0
+}
+        ],
+
+        params: Object.entries(char.status ?? {})
+          .map(([k, v]) => ({
+            label: k,
+            value: String(v)
+          })),
+
+        color: char.color ?? "#717375"
+      }
+    };
+
+    navigator.clipboard.writeText(
+  JSON.stringify(json)
+);
+
+showMessage("キャラ駒をコピーしました");
   }}
   style={{
     fontSize: 12,
     padding: "4px 8px",
     borderRadius: 6,
-    background: "#000",
+    background: "#7c3aed",
     color: "#fff",
     display: "flex",
     alignItems: "center",
@@ -3296,14 +3722,8 @@ setNameSearch: React.Dispatch<React.SetStateAction<string>>;
     whiteSpace: "nowrap"
   }}
 >
-  {char.sheetUrl.includes("charasheet")
-    ? "キャラ保管所へ"
-    : "いあきゃらへ"}
+  駒出力
 </button>
-
-
-
-)}
   
 </div>
 
@@ -3563,6 +3983,28 @@ const categorizedSkills = Object.values(skillCategories).flat();
 const otherSkills = char.skills.filter(
   s => !categorizedSkills.includes(normalizeSkillName(s.name))
 );
+
+{char.items && char.items.length > 0 && (
+
+<div style={{ marginTop: 12 }}>
+
+<b>【所持品】</b>
+
+<div style={{ marginTop: 4 }}>
+
+{char.items.map((item, i) => (
+
+<div key={i}>
+{item}
+</div>
+
+))}
+
+</div>
+
+</div>
+
+)}
 
 return (
 
